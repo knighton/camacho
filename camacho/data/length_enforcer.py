@@ -1,17 +1,25 @@
 # There are various ways to enforce length requirements.
 #
-# TooShortHandler
-# * TooShortDropHandler
-# * TooShortZeroPadHandler
-# * TooShortDieHandler
+# Classes:
 #
-# TooLongHandler
-# * TooLongKeepFrontHandler
-# * TooLongKeepEdgesHandler
-# * TooLongKeepEdgesMostlyFrontHandler
-# * TooLongDieHandler
+# - TooShortHandler
+#   - TooShortDropHandler
+#   - TooShortZeroPadHandler
+#   - TooShortDieHandler
 #
-# LengthEnforcer
+# - TooShortHandlerCreator
+#
+# - TooLongHandler
+#   - TooLongKeepFrontHandler
+#   - TooLongKeepEdgesHandler
+#   - TooLongKeepEdgesMostlyFrontHandler
+#   - TooLongDieHandler
+#
+# - TooLongHandlerCreator
+#
+# - LengthEnforcer
+#
+# - LengthEnforcerCreator
 
 
 class TooShortHandler(object):
@@ -67,17 +75,23 @@ class TooShortDieHandler(TooShortHandler):
             'Length too short (%d < %d).' % (len(nn), self._min_len)))
 
 
-TOOSHORTPOLICY2CLASS = {
-    'drop': TooShortDropHandler,
-    'zero_pad': TooShortZeroPadHandler,
-    'die': TooShortDieHandler,
-}
+class TooShortHandlerCreator(object):
+    def __init__(self):
+        self._classes = [
+            TooShortDropHandler,
+            TooShortZeroPadHandler,
+            TooShortDieHandler,
+        ]
 
+        self._policy2class = {}
+        for klass in self._classes:
+            policy = klass(1337).policy()
+            self._policy2class[policy] = klass
 
-def too_short_handler_from_d(d):
-    policy = d['policy']
-    klass = TOOSHORTPOLICY2CLASS[policy]
-    return klass(d['min_len'])
+    def from_d(self, d):
+        policy = d['policy']
+        klass = self._policy2class[policy]
+        return klass(d['min_len'])
 
 
 class TooLongHandler(object):
@@ -171,19 +185,25 @@ class TooLongDieHandler(TooShortHandler):
             'Length too long (%d < %d).' % (self._max_len, len(nn)))
 
 
-TOOLONGPOLICY2CLASS = {
-    'drop': TooLongDropHandler,
-    'keep_front': TooLongKeepFrontHandler,
-    'keep_edges': TooLongKeepEdgesHandler,
-    'keep_edges_mostly_front': TooLongKeepEdgesMostlyFrontHandler,
-    'die': TooLongDieHandler,
-}
+class TooLongHandlerCreator(object):
+    def __init__(self):
+        self._classes = [
+            TooLongDropHandler,
+            TooLongKeepFrontHandler,
+            TooLongKeepEdgesHandler,
+            TooLongKeepEdgesMostlyFrontHandler,
+            TooLongDieHandler,
+        ]
 
+        self._policy2class = {}
+        for klass in self._classes:
+            policy = klass(1337).policy()
+            self._policy2class[policy] = klass
 
-def too_long_handler_from_d(d):
-    policy = d['policy']
-    klass = TOOLONGPOLICY2CLASS[policy]
-    return klass(d['max_len'])
+    def from_d(self, d):
+        policy = d['policy']
+        klass = self._policy2class[policy]
+        return klass(d['max_len'])
 
 
 class LengthEnforcer(object):
@@ -206,13 +226,6 @@ class LengthEnforcer(object):
             assert 2 <= multiple_of
         self._multiple_of = multiple_of
 
-    @staticmethod
-    def from_d(d):
-        too_short = too_short_handler_from_d(d['too_short'])
-        too_long = too_long_handler_from_d(d['too_long'])
-        multiple_of = d['multiple_of']
-        return LengthEnforcer(too_short, too_long, multiple_of)
-
     def to_d(self):
         return {
             'too_short': self._too_short.to_d(),
@@ -233,3 +246,15 @@ class LengthEnforcer(object):
             rr += [0] * (self._multiple_of - overhang)
 
         return rr
+
+
+class LengthEnforcerCreator(object):
+    def __init__(self):
+        self._too_short = TooShortHandlerCreator()
+        self._too_long = TooLongHandlerCreator()
+
+    def from_d(self, d):
+        too_short = self._too_short.from_d(d['too_short'])
+        too_long = self._too_long.from_d(d['too_long'])
+        multiple_of = d['multiple_of']
+        return LengthEnforcer(too_short, too_long, multiple_of)
