@@ -17,6 +17,16 @@
 class TooShortHandler(object):
     def __init__(self, min_len):
         self._min_len = min_len
+        self._policy = None
+
+    def policy(self):
+        return self._policy
+
+    def to_d(self):
+        return {
+            'min_len': self._min_len,
+            'policy': self.policy(),
+        }
 
     def is_too_short(self, nn):
         return len(nn) < self._min_len
@@ -26,11 +36,19 @@ class TooShortHandler(object):
 
 
 class TooShortDropHandler(TooShortHandler):
+    def __init__(self, min_len):
+        super(TooShortHandler, self).__init__(min_len)
+        self._policy = 'drop'
+
     def handle(self, nn):
         return None
 
 
 class TooShortZeroPadHandler(TooShortHandler):
+    def __init__(self, min_len):
+        super(TooShortHandler, self).__init__(min_len)
+        self._policy = 'zero_pad'
+
     def handle(self, nn):
         return nn + [0] * (self._min_len - len(nn))
 
@@ -40,14 +58,41 @@ class TooShortException(Exception):
 
 
 class TooShortDieHandler(TooShortHandler):
+    def __init__(self, min_len):
+        super(TooShortHandler, self).__init__(min_len)
+        self._policy = 'die'
+
     def handle(self, nn):
         raise TooShortException(
             'Length too short (%d < %d).' % (len(nn), self._min_len)))
 
 
+TOOSHORTPOLICY2CLASS = {
+    'drop': TooShortDropHandler,
+    'zero_pad': TooShortZeroPadHandler,
+    'die': TooShortDieHandler,
+}
+
+
+def too_short_handler_from_d(d):
+    policy = d['policy']
+    klass = TOOSHORTPOLICY2CLASS[policy]
+    return klass(d['min_len'])
+
+
 class TooLongHandler(object):
     def __init__(self, max_len):
         self._max_len = max_len
+        self._policy = None
+
+    def policy(self):
+        return self._policy
+
+    def to_d(self):
+        return {
+            'max_len': self._max_len,
+            'policy': self.policy(),
+        }
 
     def is_too_long(self, nn):
         return self._max_len < len(nn)
@@ -57,11 +102,19 @@ class TooLongHandler(object):
 
 
 class TooLongDropHandler(TooLongHandler):
+    def __init__(self, max_len):
+        super(TooLongHandler, self).__init__(max_len)
+        self._policy = 'drop'
+
     def handle(self, nn):
         return None
 
 
 class TooLongKeepFrontHandler(TooLongHandler):
+    def __init__(self, max_len):
+        super(TooLongHandler, self).__init__(max_len)
+        self._policy = 'keep_front'
+
     def handle(self, nn):
         return nn[:self._max_len]
 
@@ -69,6 +122,7 @@ class TooLongKeepFrontHandler(TooLongHandler):
 class TooLongKeepEdgesHandler(TooLongHandler):
     def __init__(self, max_len):
         super(TooLongHandler, self).__init__(max_len)
+        self._policy = 'keep_edges'
         self._front_len = max_len / 2
         excess = max_len % 2
         if excess:
@@ -85,6 +139,7 @@ class TooLongKeepEdgesHandler(TooLongHandler):
 class TooLongKeepEdgesMostlyFrontHandler(TooLongHandler):
     def __init__(self, max_len):
         super(TooLongHandler, self).__init__(max_len)
+        self._policy = 'keep_edges_mostly_front'
         excess = max_len % 3
         if not excess:
             self._front_len = max_len * 2 / 3
@@ -107,9 +162,28 @@ class TooLongException(Exception):
 
 
 class TooLongDieHandler(TooShortHandler):
+    def __init__(self, max_len):
+        super(TooLongHandler, self).__init__(max_len)
+        self._policy = 'die'
+
     def handle(self, nn):
         raise TooLongException(
             'Length too long (%d < %d).' % (self._max_len, len(nn)))
+
+
+TOOLONGPOLICY2CLASS = {
+    'drop': TooLongDropHandler,
+    'keep_front': TooLongKeepFrontHandler,
+    'keep_edges': TooLongKeepEdgesHandler,
+    'keep_edges_mostly_front': TooLongKeepEdgesMostlyFrontHandler,
+    'die': TooLongDieHandler,
+}
+
+
+def too_long_handler_from_d(d):
+    policy = d['policy']
+    klass = TOOLONGPOLICY2CLASS[policy]
+    return klass(d['max_len'])
 
 
 class LengthEnforcer(object):
@@ -129,8 +203,22 @@ class LengthEnforcer(object):
 
         if multiple_of is not None:
             assert isinstance(multiple_of, int)
-            assert 1 <= multiple_of
+            assert 2 <= multiple_of
         self._multiple_of = multiple_of
+
+    @staticmethod
+    def from_d(d):
+        too_short = too_short_handler_from_d(d['too_short'])
+        too_long = too_long_handler_from_d(d['too_long'])
+        multiple_of = d['multiple_of']
+        return LengthEnforcer(too_short, too_long, multiple_of)
+
+    def to_d(self):
+        return {
+            'too_short': self._too_short.to_d(),
+            'too_long': self._too_long.to_d(),
+            'multiple_of': self._multiple_of,
+        }
 
     def handle(self, nn):
         if self._too_short.is_too_short(nn):
