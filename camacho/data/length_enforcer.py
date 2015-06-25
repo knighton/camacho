@@ -10,9 +10,9 @@
 # - TooShortHandlerCreator
 #
 # - TooLongHandler
-#   - TooLongKeepFrontHandler
-#   - TooLongKeepEdgesHandler
-#   - TooLongKeepEdgesMostlyFrontHandler
+#   - TooLongTruncateEndHandler
+#   - TooLongTruncateMiddleHandler
+#   - TooLongTruncateMidBackHandler
 #   - TooLongDieHandler
 #
 # - TooLongHandlerCreator
@@ -124,19 +124,19 @@ class TooLongDropHandler(TooLongHandler):
         return None
 
 
-class TooLongKeepFrontHandler(TooLongHandler):
+class TooLongTruncateEndHandler(TooLongHandler):
     def __init__(self, max_len):
         super(TooLongHandler, self).__init__(max_len)
-        self._policy = 'keep_front'
+        self._policy = 'truncate_end'
 
     def handle(self, nn):
         return nn[:self._max_len]
 
 
-class TooLongKeepEdgesHandler(TooLongHandler):
+class TooLongTruncateMiddleHandler(TooLongHandler):
     def __init__(self, max_len):
         super(TooLongHandler, self).__init__(max_len)
-        self._policy = 'keep_edges'
+        self._policy = 'truncate_middle'
         self._front_len = max_len / 2
         excess = max_len % 2
         if excess:
@@ -150,10 +150,10 @@ class TooLongKeepEdgesHandler(TooLongHandler):
         return front + [0] + back
 
 
-class TooLongKeepEdgesMostlyFrontHandler(TooLongHandler):
+class TooLongTruncateMidBackHandler(TooLongHandler):
     def __init__(self, max_len):
         super(TooLongHandler, self).__init__(max_len)
-        self._policy = 'keep_edges_mostly_front'
+        self._policy = 'truncate_mid_back'
         excess = max_len % 3
         if not excess:
             self._front_len = max_len * 2 / 3
@@ -189,9 +189,9 @@ class TooLongHandlerCreator(object):
     def __init__(self):
         self._classes = [
             TooLongDropHandler,
-            TooLongKeepFrontHandler,
-            TooLongKeepEdgesHandler,
-            TooLongKeepEdgesMostlyFrontHandler,
+            TooLongTruncateEndHandler,
+            TooLongTruncateMiddleHandler,
+            TooLongTruncateMidBackHandler,
             TooLongDieHandler,
         ]
 
