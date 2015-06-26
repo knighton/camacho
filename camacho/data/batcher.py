@@ -15,6 +15,12 @@ class Batcher(object):
         self._min_training_batch_size = min_training_batch_size
         self._max_training_batch_size = max_training_batch_size
 
+    def to_d(self):
+        return {
+            'min_training_batch_size': self._min_training_batch_size,
+            'max_training_batch_size': self._max_training_batch_size,
+        }
+
     def make_training_batches(self, sequences_classes):
         """
         list of (sequence, class) -> list of (padded sequences, classes)
@@ -75,3 +81,9 @@ class Batcher(object):
             batches.append(np.array(seq)
 
         return batches, orig_xx
+
+
+class BatcherCreator(object):
+    def from_d(self, d):
+        return Batcher(d['min_training_batch_size'],
+                       d['max_training_batch_size'])
