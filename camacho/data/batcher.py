@@ -21,16 +21,16 @@ class Batcher(object):
             'max_training_batch_size': self._max_training_batch_size,
         }
 
-    def make_training_batches(self, sequences_classes):
+    def make_training_batches(self, X, y):
         """
-        list of (sequence, class) -> list of (padded sequences, classes)
+        (sequence, classes) -> list of (padded sequences, classes)
 
         Divide the input data into training batches of fairly regular length.
         The drawback is it requires irregular amounts of padding.
         """
         # Sort by sequence length.
         lens_seqs_classes = []
-        for seq, klass in sequences_classes:
+        for seq, klass in zip(X, y):
             length = len(seq)
             lens_seqs_classes.append((length, seq, klass))
         lens_seqs_classes.sort()
