@@ -3,17 +3,15 @@ from camacho.base import TransformerMixin
 
 class CodeUnitTokenizer(TransformerMixin):
     """
-    'Tokenize' text on a per-character basis.
+    'Tokenize' text on code units (often user-perceived characters).
 
-    Naively treat each code unit as a character.  Fast and probably good enough
-    in practice.  For the technically correct way to do this, see
-    GraphemeClusterTokenizer.
+    Unicode combining characters are treated as separate entities, which may not
+    be what you want.  This is faster than combining them (see
+    CharacterTokenizer).
 
     On wide python builds, code unit == code point.  On narrow python builds,
     beware surrogate pairs.
     """
-
-    name = 'code_unit_tokenizer'
 
     def __init__(self):
         self._fitted = False
@@ -45,14 +43,12 @@ def segment_upc(text):
         yield ''.join(buf)
 
 
-class GraphemeClusterTokenizer(TransformerMixin):
+class CharacterTokenizer(TransformerMixin):
     """
-    Tokenize text on a per-character basis.
+    'Tokenize' text on user-perceived characters.
     
-    Accounts for Unicode combining characters.  Slower than CodeUnitTokenizer.
+    Joins Unicode combining characters.  Slower than CodeUnitTokenizer.
     """
-
-    name = 'grapheme_cluster_tokenizer'
 
     def __init__(self):
         self._fitted = False
@@ -75,8 +71,6 @@ class WhitespaceTokenizer(TransformerMixin):
     Tokenize text on whitespace (eg, for using some other system's tokenization
     results).
     """
-
-    name = 'whitespace_tokenizer'
 
     def __init__(self):
         self._fitted = False
