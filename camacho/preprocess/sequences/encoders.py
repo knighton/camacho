@@ -18,10 +18,9 @@ def assign_ints_by_freq(a2count):
 
 
 class StandardEncoder(TransformerMixin):
-    def __init__(self, min_freq=50, oov_int=0, oov_token=' '):
+    def __init__(self, min_freq=50, oov_int=0):
         self._min_freq = min_freq
         self._oov_int = oov_int
-        self._oov_token = oov_token
 
     def fit(self, aaa):
         # Count tokens.
