@@ -42,10 +42,6 @@ class StandardEncoder(TransformerMixin):
 
         return self
 
-    def fit_transform(self, aaa):
-        self.fit(aaa)
-        return self.transform(aaa)
-
     def transform(self, aaa):
         nnn = []
         for aa in aaa:

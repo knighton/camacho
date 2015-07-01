@@ -46,15 +46,6 @@ class MinLengthEnforcer(TransformerMixin):
         self._action = action
         self._pad_token = pad_token
         self._extender = ACTION2HANDLER[action](min_len, divider_token)
-        self._fitted = False
-
-    def fit(self, aaa):
-        self._fitted = True
-        return self
-
-    def fit_transform(self, aaa):
-        self.fit()
-        return self.transform(aaa)
 
     def transform(self, aaa):
         rrr = []

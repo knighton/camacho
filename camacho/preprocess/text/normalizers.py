@@ -3,26 +3,22 @@ import unicodedata
 
 
 class LowerCaseNormalizer(TransformerMixin):
-    def fit(self, texts):
-        return self
-
-    def fit_transform(self, texts):
-        return map(lambda s: s.lower, texts)
+    """
+    Convert to lower case.
+    """
 
     def transform(self, texts):
         return map(lambda s: s.lower, texts)
 
 
 class UnicodeNormalizer(TransformerMixin):
+    """
+    Apply one of the Unicode normalization forms.
+    """
+
     def __init__(self, form='NFC'):
         assert form in ('NFC', 'NFD', 'NFKC', 'NFKD')
         self._form = form
-
-    def fit(self, texts):
-        return self
-
-    def fit_transform(self, texts):
-        return map(lambda s: unicodedata.normalize(self._form, s), texts)
 
     def transform(self, texts):
         return map(lambda s: unicodedata.normalize(self._form, s), texts)
@@ -67,9 +63,6 @@ class AggressiveUnicodeNormalizer(TransformerMixin):
         assert after in (None, 'NFC', 'NFD', 'NFKC', 'NFKD')
         self._after = after
 
-    def fit(self, texts):
-        return self
-
     def transform(self, texts):
         rr = []
         for text in texts:
@@ -81,17 +74,11 @@ class AggressiveUnicodeNormalizer(TransformerMixin):
             rr.append(text)
         return rr
 
-    def fit_transform(self, texts):
-        self.fit(texts)
-        return self.transform(texts)
-
 
 class WhitespaceNormalizer(TransformerMixin):
-    def fit(self, texts):
-        return self
+    """
+    Replace all whitespace with ' '.
+    """
 
     def transform(self, texts):
-        return map(lambda s: u' '.join(s.split()), texts)
-
-    def fit_transform(self, texts):
         return map(lambda s: u' '.join(s.split()), texts)

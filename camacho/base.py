@@ -3,13 +3,14 @@ class TransformerMixin(object):
         """
         items -> self
         """
-        raise NotImplementedError
+        return self
 
     def fit_transform(self, aa):
         """
         items -> transformed items
         """
-        raise NotImplementedError
+        self.fit()
+        return self.transform(aa)
 
     def transform(self, aa):
         """

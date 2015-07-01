@@ -63,7 +63,7 @@ TRUNCATE_HANDLERS = [
 
 ACTION2HANDLER = {}
 for klass in TRUNCATE_HANDLERS:
-    ACTION2HANDLER[klass.name] = klass
+    ACTION2HANDLER[klass.__class__.__name__] = klass
 
 
 class MaxLengthEnforcer(TransformerMixin):
@@ -73,15 +73,6 @@ class MaxLengthEnforcer(TransformerMixin):
         self._action = action
         self._divider_token = divider_token
         self._truncator = ACTION2HANDLER[action](max_len, divider_token)
-        self._fitted = False
-
-    def fit(self, aaa):
-        self._fitted = True
-        return self
-
-    def fit_transform(self, aaa):
-        self.fit()
-        return self.transform(aaa)
 
     def transform(self, aaa):
         rrr = []
