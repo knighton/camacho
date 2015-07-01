@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 from camacho.base import TransformerMixin
 import unicodedata
 
