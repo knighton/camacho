@@ -1,4 +1,8 @@
 class TransformerMixin(object):
+    """
+    Used to preprocess data.
+    """
+
     def fit(self, aa):
         """
         items -> self
@@ -15,5 +19,17 @@ class TransformerMixin(object):
     def transform(self, aa):
         """
         items -> transformed items
+        """
+        raise NotImplementedError
+
+
+class ReversibleTransformerMixin(TransformerMixin):
+    """
+    Used to encode/decode labels.
+    """
+
+    def inverse_transform(self, aa):
+        """
+        transformed items -> items
         """
         raise NotImplementedError
