@@ -1,4 +1,5 @@
 from camacho.base import TransformerMixin
+import unicodedata
 
 
 class CodeUnitTokenizer(TransformerMixin):
@@ -29,18 +30,82 @@ class CodeUnitTokenizer(TransformerMixin):
         return map(list, texts)
 
 
-def segment_upc(text):
+def segment_raw(text):
+    """
+    Don't do any normalization before segmenting text.
+
+    * Useful when you have already done some form of Unicode normalization
+      before you want to segment into characters as-is.
+
+    * Otherwise, a bad choice.
+
+    * Does not group jamo.
+    """
+    nn = map(unicodedata.combining, text)
     buf = []
-    for c in text:
-        n = unicodedata.combining(c)
+    rr = []
+    for c, n in zip(text, nn):
         if n:
             buf.append(c)
             continue
         if buf:
-            yield ''.join(buf)
+            rr.append(buf)
         buf = [c]
     if buf:
-        yield ''.join(buf)
+        rr.append(buf)
+    return map(lambda r: ''.join(r), rr)
+
+
+def segment_nfc(text):
+    """
+    Applies NFC normalization, then segments.
+
+    * Useful if you (a) haven't already normalized, and (b) don't trust
+      segment_aggressive().
+
+    * Does not group jamo.
+    """
+    text = unicodedata.normalize('nfc', text)
+    return segment_raw(text)
+
+
+def reorder_segment(nn_cc):
+    nn_cc.sort()
+    return ''.join(map n, c: c, nn_cc)
+
+
+def segment_aggressive(text):
+    """
+    Aggressively normalizes text before segmentation.
+
+    * Combining characters can interact in a way that inhibits combining,
+      depending on how they are ordered.  So we enforce a canonical order before
+      normalization.
+
+    * Does not group jamo.
+    """
+    # Decompose.
+    text = unicodedata.normalize('nfd', text)
+
+    # Segment.
+    nn = map(unicodedata.combining, text)
+    buf = []
+    nnn_ccc = []
+    for c, n in zip(text, nn):
+        if n:
+            buf.append((n, c))
+            continue
+        if buf:
+            nnn_ccc.append(buf)
+        buf = [(n, c)]
+    if buf:
+        nnn_ccc.append(buf)
+
+    # Reorder decomposed segments in a non-standards-compliant way.
+    ss = map(reorder_segment, nnn_ccc)
+
+    # Now, NFC-normalize that.
+    return map(lambda s: unicodedata.normalize('nfc', s), ss)
 
 
 class CharacterTokenizer(TransformerMixin):
@@ -50,7 +115,13 @@ class CharacterTokenizer(TransformerMixin):
     Joins Unicode combining characters.  Slower than CodeUnitTokenizer.
     """
 
-    def __init__(self):
+    def __init__(self, norm='aggressive'):
+        self._norm = norm
+        self._segment_f = {
+            'raw': segment_raw,
+            'nfc': segment_nfc,
+            'aggressive': segment_aggressive,
+        }[norm]
         self._fitted = False
 
     def fit(self, texts):
@@ -58,12 +129,12 @@ class CharacterTokenizer(TransformerMixin):
         return self
 
     def fit_transform(self, texts):
-        self._fitted = True
-        return map(segment_upc, texts)
+        self.fit()
+        return self.transform()
 
     def transform(self, texts):
         assert self._fitted
-        return map(segment_upc, texts)
+        return map(self._segment_f, texts)
 
 
 class WhitespaceTokenizer(TransformerMixin):
