@@ -9,8 +9,6 @@ class Sampler(object):
 
 
 class CountSampler(Sampler):
-    name = 'count_sampler'
-
     def __init__(self, train_per_class=5000, val_per_class=3000,
                  test_per_class=3000):
         self._train_per_class = train_per_class
@@ -51,8 +49,6 @@ class CountSampler(Sampler):
 
 
 class ProportionalSampler(Sampler):
-    name = 'proportional_sampler'
-
     def __init__(self, num_train=10000, num_val=5000, num_test=5000):
         self._num_train = num_train
         self._num_val = num_val

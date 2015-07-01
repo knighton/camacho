@@ -3,8 +3,6 @@ import unicodedata
 
 
 class LowerCaseNormalizer(TransformerMixin):
-    name = 'lower_case_normalizer'
-
     def fit(self, texts):
         return self
 
@@ -16,8 +14,6 @@ class LowerCaseNormalizer(TransformerMixin):
 
 
 class UnicodeNormalizer(TransformerMixin):
-    name = 'unicode_normalizer'
-
     def __init__(self, form='nfc'):
         self._form = form
 
@@ -32,8 +28,6 @@ class UnicodeNormalizer(TransformerMixin):
 
 
 class WhitespaceNormalizer(TransformerMixin):
-    name = 'whitespace_normalizer'
-
     def fit(self, texts):
         return self
 

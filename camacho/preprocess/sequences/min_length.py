@@ -10,8 +10,6 @@ class ExtendHandler(object):
 
 
 class PadFront(ExtendHandler):
-    name = 'pad_front'
-
     def __init__(self, min_len, pad_token):
         self._min_len = min_len
         self._pad_token = pad_token
@@ -22,8 +20,6 @@ class PadFront(ExtendHandler):
 
 
 class PadBack(ExtendHandler):
-    name = 'pad_back'
-
     def __init__(self, min_len, pad_token):
         self._min_len = min_len
         self._pad_token = pad_token
@@ -41,13 +37,11 @@ EXTEND_HANDLERS = [
 
 ACTION2HANDLER = {}
 for klass in EXTEND_HANDLERS:
-    ACTION2HANDLER[klass.name] = klass
+    ACTION2HANDLER[klass.__class__.__name__] = klass
 
 
 class MinLengthEnforcer(TransformerMixin):
-    name = 'min_length_enforcer'
-
-    def __init__(self, min_len=0, action='pad_back', pad_token='\0'):
+    def __init__(self, min_len=0, action='PadBack', pad_token='\0'):
         self._min_len = min_len
         self._action = action
         self._pad_token = pad_token

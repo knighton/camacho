@@ -10,8 +10,6 @@ class TruncateHandler(object):
 
 
 class TruncateEnd(TruncateHandler):
-    name = 'truncate_end'
-
     def __init__(self, max_len, divider_token):
         self._max_len = max_len
 
@@ -20,8 +18,6 @@ class TruncateEnd(TruncateHandler):
 
 
 class TruncateMiddle(TruncateHandler):
-    name = 'truncate_end'
-
     def __init__(self, max_len, divider_token):
         excess = max_len % 2
         if excess:
@@ -39,8 +35,6 @@ class TruncateMiddle(TruncateHandler):
 
 
 class TruncateMidBack(TruncateHandler):
-    name = 'truncate_mid_back'
-
     def __init__(self, max_len, divider_token):
         excess = max_len % 3
         if not excess:
@@ -73,9 +67,7 @@ for klass in TRUNCATE_HANDLERS:
 
 
 class MaxLengthEnforcer(TransformerMixin):
-    name = 'max_length_enforcer'
-
-    def __init__(self, max_len=512, action='truncate_mid_back',
+    def __init__(self, max_len=512, action='TruncateMidBack',
                  divider_token='\0'):
         self._max_len = max_len
         self._action = action
