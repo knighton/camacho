@@ -4,57 +4,38 @@ from camacho.base import TransformerMixin
 import unicodedata
 
 
-def aggressively_normalize_upcs(text):
-    nn = map(unicodedata.combining, text)
-
-    tmp = []
-    nnn_ccc = []
-    for c, n in zip(text, nn):
-        if n:
-            tmp.append((n, c))
-            continue
-        if tmp:
-            nnn_ccc.append(tmp)
-        tmp = [(n, c)]
-    if tmp:
-        nnn_ccc.append(tmp)
-
-    ss = []
-    for nn_cc in nnn_ccc:
-        nn_cc.sort()
-        s = ''.join(map(lambda n, c: c, nn_cc))
-        ss.append(s)
-
-    return ''.join(ss)
-
-
-class IntraUPCReorderer(TransformerMixin):
+class WhitespaceNormalizer(TransformerMixin):
     """
-    Normalize a bit further than the standard Unicode normalization forms.
-
-    Decomposes, reorders segments, then recomposes.  Drop-in replacement for
-    UnicodeNormalizer.
-
-    If no 'before', assumes data is already decomposed.  The 'after' step is not
-    required.
+    Replace all whitespace with ' '.
     """
 
-    def __init__(self, before='NFD', after='NFC'):
-        assert before in (None, 'NFD', 'NFKD')
-        self._before = before
+    def transform(self, texts):
+        return map(lambda s: u' '.join(s.split()), texts)
 
-        assert after in (None, 'NFC', 'NFD', 'NFKC', 'NFKD')
-        self._after = after
+
+class CharacterReplacer(TransformerMixin):
+    """
+    Replace characters (single code units) with strings.
+    """
+
+    def __init__(self, s2s=None):
+        if s2s is None:
+            s2s = {}
+        self._s2s = s2s
+        for k, v in self._s2s.iteritems():
+            assert isinstance(k, (str, unicode))
+            assert len(k) == 1
+            assert isinstance(v, (str, unicode))
 
     def transform(self, texts):
         rr = []
         for text in texts:
-            if self._before:
-                text = unicodedata.normalize(self._before, text)
-            text = aggressively_normalize_upcs(text)
-            if self._after:
-                text = unicodedata.normalize(self._after, text)
-            rr.append(text)
+            cc = list(text)
+            for i, c in enumerate(cc):
+                v = self._s2s.get(c, None)
+                if v is not None:
+                    cc[i] = v
+            rr.append(''.join(cc))
         return rr
 
 

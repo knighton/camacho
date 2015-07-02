@@ -46,14 +46,3 @@ class CharacterTokenizer(TransformerMixin):
 
     def transform(self, texts):
         return map(segments_from_text, texts)
-
-
-class WhitespaceTokenizer(TransformerMixin):
-    """
-    Tokenize text on whitespace (eg, for using the output of some other
-    tokenization system).
-    """
-
-    def transform(self, texts):
-        assert self._fitted
-        return map(lambda s: s.split(), texts)
