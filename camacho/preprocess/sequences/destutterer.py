@@ -1,9 +1,9 @@
 from camacho.base import TransformerMixin
 
 
-class Destutterer(TransformerMixin):
+class SequenceDestutterer(TransformerMixin):
     """
-    Drop overly-repeated characters.
+    Drop overly-repeated items.
     """
 
     def __init__(self, max_consec=3, ignore=None):

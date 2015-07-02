@@ -1,6 +1,9 @@
 # -*- encoding: utf-8 -*-
 
 from camacho.base import TransformerMixin
+from camacho.preprocess.tokenize import CharacterTokenizer
+from camacho.preprocess.sequences import SequenceDestutterer
+import sys
 import unicodedata
 
 
@@ -46,6 +49,26 @@ class EllipsisNormalizer(TransformerMixin):
 
     def transform(self, texts):
         return map(self._transform_text, texts)
+
+
+class TextDestutterer(TransformerMixin):
+    """
+    Drop overly-repeated non-digit characters.
+    """
+
+    def __init__(self, max_consec=3):
+        ignore = []
+        for c in map(unichr, xrange(sys.maxunicode)):
+            cat = unicodedata.category(c)
+            if cat.startswith('N'):
+                ignore.append(c)
+        self._des = SequenceDestutterer(max_consec=max_consec, ignore=ignore)
+        self._tok = CharacterTokenizer()
+
+    def transform(self, texts):
+        ccc = self._tok.transform(texts)
+        ccc = self._des.transform(ccc)
+        return map(lambda cc: ''.join(cc), ccc)
 
 
 class CharacterReplacer(TransformerMixin):
