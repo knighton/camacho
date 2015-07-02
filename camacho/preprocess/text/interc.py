@@ -13,6 +13,41 @@ class WhitespaceNormalizer(TransformerMixin):
         return map(lambda s: u' '.join(s.split()), texts)
 
 
+class EllipsisNormalizer(TransformerMixin):
+    """
+    Normalize various strings of dots to a dot or an ellipsis.
+    """
+
+    def __init__(self):
+        self._ellipsis = unichr(0x2026)
+
+    def _transform_text(self, text):
+        text = text.replace(self._ellipsis, '...')
+        inside_dots = False
+        num_dots = None
+        for i, c in enumerate(text):
+            if inside_dots:
+                if c == '.':
+                    num_dots += 1
+                elif not c.isspace():
+                    if num_dots == 1:
+                        c = '.'
+                    else:
+                        c = self._ellipsis
+                    rr.append(c)
+                    inside_dots = False
+            else:
+                if c == '.':
+                    inside_dots = True
+                    num_dots = 1
+                else:
+                    rr.append(c)
+        return ''.join(rr)
+
+    def transform(self, texts):
+        return map(self._transform_text, texts)
+
+
 class CharacterReplacer(TransformerMixin):
     """
     Replace characters (single code units) with strings.
