@@ -7,4 +7,4 @@ class LowerCase(TransformerMixin):
     """
 
     def transform(self, texts):
-        return map(lambda s: s.lower, texts)
+        return map(lambda s: s.lower(), texts)
