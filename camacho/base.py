@@ -13,7 +13,7 @@ class TransformerMixin(object):
         """
         items -> transformed items
         """
-        self.fit()
+        self.fit(aa)
         return self.transform(aa)
 
     def transform(self, aa):
@@ -35,7 +35,7 @@ class ReversibleTransformerMixin(TransformerMixin):
         raise NotImplementedError
 
 
-class ClassifierMixin(ClassifierMixin):
+class ClassifierMixin(object):
     """
     Used to classify data.
     """
