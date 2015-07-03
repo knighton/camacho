@@ -1,4 +1,5 @@
 from collections import defaultdict
+import numpy as np
 
 
 def v2k_from_k2v(k2v):
@@ -14,6 +15,23 @@ def v2kk_from_k2v(k2v):
     for k, v in k2v.iteritems():
         v2kk[v].append(k)
     return v2kk
+
+
+def to_one_hot(x, length):
+    bb = [0] * length
+    bb[x] = 1
+    return bb
+
+
+def ones_and_zeros(one_indexes, length):
+    bb = [0] * length
+    for x in one_indexes:
+        bb[x] = 1
+    return bb
+
+
+def from_one_hot(bb):
+    return np.argmax(bb)
 
 
 def import_path_from_object(obj):
