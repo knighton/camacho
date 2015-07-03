@@ -1,5 +1,4 @@
 from camacho.base import ReversibleTransformerMixin
-from camacho.base import k2v_from_v2k
 import numpy as np
 
 
@@ -9,15 +8,30 @@ def to_one_hot(n, count):
     return nn
 
 
+def dict_from_list(aa):
+    aa = sorted(set(aa))
+    nn = range(len(aa))
+    a2n = dict(zip(aa, nn))
+    n2a = dict(zip(nn, aa))
+    return a2n, n2a
+
+
+def dict_from_lists(aaa):
+    rr = set()
+    for aa in aaa:
+        for a in aa:
+            rr.add(a)
+    return dict_from_list(rr)
+
+
 class LabelBinarizer(ReversibleTransformerMixin):
     """
     Labels <-> one-hot arrays.
     """
 
     def fit(self, aa):
-        aa = sorted(set(aa))
-        self._a2n = dict(zip(aa, xrange(len(aa))))
-        self._n2a = k2v_from_v2k(self._a2n)
+        self._a2n, self._n2a = dict_from_list(aa)
+        return self
 
     def transform(self, aa):
         nn = map(lambda a: self._a2n[a], aa)
@@ -41,13 +55,8 @@ class SetBinarizer(ReversibleTransformerMixin):
     """
 
     def fit(self, aaa):
-        aa_set = set()
-        for aa in aaa:
-            for a in aa:
-                aa_set.add(a)
-        aa = sorted(aa_set)
-        self._a2n = dict(zip(aa, xrange(len(aa))))
-        self._n2a = k2v_from_v2k(self._a2n)
+        self._a2n, self._n2a = dict_from_lists(aaa)
+        return self
 
     def transform(self, aaa):
         nnn = []
@@ -64,3 +73,23 @@ class SetBinarizer(ReversibleTransformerMixin):
             aa = map(lambda n: self._n2a[n], nn)
             aaa.append(aa)
         return aaa
+
+
+class OneHotListBinarizer(ReversibleTransformerMixin):
+    """
+    Lists of tokens <-> concatenated one-hot arrays per token.
+    """
+
+    def fit(self, aaa):
+        self._a2n, self._n2a = dict_from_lists(aaa)
+        return self
+
+    def transform(self, aaa):
+        rrr = []
+        count = len(self._a2n)
+        for aa in aaa:
+            nn = map(lambda a: self._a2n[a], aa)
+            nnn = map(lambda n: to_one_hot(n, count), nn)
+            nn = reduce(lambda a, b: a + b, nnn)
+            rrr.append(nn)
+        return rrr
