@@ -1,26 +1,31 @@
-from camacho.base import TransformerMixin
-from camacho.util import v2k_from_k2v
+from camacho.base import ReversibleTransformerMixin
 from collections import defaultdict
 
 
-def assign_ints_by_freq(a2count):
-    count2aa = defaultdict(list)
-    for a, count in a2count.iteritems():
-        count2aa[count].append(a)
+class IntCoder(ReversibleTransformerMixin):
+    """
+    Converts tokens <-> contiguous range of ints.
+    """
 
-    a2n = {}
-    for count in sorted(count2aa, reversed=True):
-        for a in sorted(count2aa[count]):
-            n = len(a2n) + 1
-            a2n[a] = n
-
-    return a2n
-
-
-class StandardEncoder(TransformerMixin):
-    def __init__(self, min_freq=50, oov_int=0):
+    def __init__(self, min_freq=0, top_n=10000, use_oov=True, oov_token=''):
+        # Drop the tokens that occur less than min_freq times.
+        assert 0 <= min_freq
         self._min_freq = min_freq
-        self._oov_int = oov_int
+
+        # Drop the tokens that aren't in the top 'top_n' ordered by frequency.
+        assert 0 <= top_n
+        self._top_n = top_n
+
+        # If you know that the input to fit() will contain all the unique tokens
+        # that will ever exist, don't add an OOV token.  Else, do add one.
+        assert isinstance(use_oov, bool)
+        self._use_oov = use_oov
+
+        # The token to pick when we reverse-transform an unknown integer.
+        self._oov_token = oov_token
+
+        # Don't change this without updating fit().
+        self._oov_int = 0
 
     def fit(self, aaa):
         # Count tokens.
@@ -29,21 +34,66 @@ class StandardEncoder(TransformerMixin):
             for a in aa:
                 a2count[a] += 1
 
-        # Drop the ones that are too infrequent.
-        if self._min_freq is not None:
-            for a, count in a2count.items():
-                if count < self._min_freq:
-                    del a2count[a]
+        # Order tokens by frequency.
+        counts_aa = []
+        for a, count in a2count.iteritems():
+            counts_aa.append((count, a))
+        counts_aa.sort(reverse=True)
 
-        # Number the unique tokens by their frequency of occurence.  Save zero
-        # for out-of-vocabulary tokens.
-        self._a2n = assign_ints_by_freq(a2count)
+        # Maybe just keep the top n.
+        if self._top_n:
+            counts_aa = counts_aa[:self._top_n]
+
+        # Maybe pretend too-infrequent tokens are out-of-vocabulary.
+        if self._min_freq:
+            i = 0
+            while i < len(counts_aa):
+                count, _ = counts_aa[i]
+                if count < self._min_freq:
+                    break
+            counts_aa = counts_aa[:i]
+
+        # Get the official list of tokens.
+        aa = map(lambda (count, a): a, counts_aa)
+
+        # Maybe account for OOV (it maps to zero).
+        if self._use_oov:
+            i = None
+            for i, a in enumerate(aa):
+                if a == self._oov_token:
+                    break
+            if i is None:
+                aa = [self._oov_token] + aa[:-1]
+            else:
+                a = aa[i]
+                aa = [a] + aa[:i] + aa[i + 1:]
+
+        # Construct the mapping.
+        nn = range(len(aa))
+        self._a2n = dict(zip(aa, nn))
+        self._n2a = dict(zip(nn, aa))
 
         return self
 
+    def fit_transform(self, aaa):
+        self.fit(aaa)
+        return self.transform(aaa)
+
     def transform(self, aaa):
         nnn = []
-        for aa in aaa:
-            nn = map(lambda a: self._a2n.get(a, self._oov_int), aa)
-            nnn.append(nn)
+        if self._use_oov:
+            for aa in aaa:
+                nn = map(lambda a: self._a2n.get(a, self._oov_int), aa)
+                nnn.append(nn)
+        else:
+            for aa in aaa:
+                nn = map(lambda a: self._a2n[a], aa)
+                nnn.append(nn)
         return nnn
+
+    def inverse_transform(self, nnn):
+        aaa = []
+        for nn in nnn:
+            aa = map(lambda n: self._n2a[n], nn)
+            aaa.append(aa)
+        return aaa
