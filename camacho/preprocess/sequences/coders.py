@@ -51,6 +51,7 @@ class IntCoder(ReversibleTransformerMixin):
                 count, _ = counts_aa[i]
                 if count < self._min_freq:
                     break
+                i += 1
             counts_aa = counts_aa[:i]
 
         # Get the official list of tokens.
