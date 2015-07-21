@@ -218,7 +218,7 @@ EXTRA_TRANSLATE_MAP = sum_dicts(
     DEFAULT_TRANSLATE_MAP, HIGH_SURROGATE_MAP, BLACKLETTER_MAP)
 
 
-class ExtraUnicodeNormalization(Transformer):
+class ExtraUnicodeNormalizer(Transformer):
     """
     Apply further Unicode compatibility mappings than the NFK* forms.
     """
@@ -234,7 +234,7 @@ class ExtraUnicodeNormalization(Transformer):
         return self._replacer.transform(texts)
 
 
-class UnicodeNormalizationForm(Transformer):
+class UnicodeNormalizer(Transformer):
     """
     Apply one of the Unicode normalization forms.
     """
@@ -276,7 +276,7 @@ class GraphemeClusterOrderer(Transformer):
     Normalize a bit further than the standard Unicode normalization forms.
 
     Decomposes, reorders code units, then optionally recomposes.  Drop-in
-    replacement for UnicodeNormalizationForm().
+    replacement for UnicodeNormalizer().
 
     If no 'before', assumes data is already decomposed.  The 'after' step is not
     required.
@@ -299,3 +299,20 @@ class GraphemeClusterOrderer(Transformer):
                 text = unicodedata.normalize(self._after, text)
             rr.append(text)
         return rr
+
+
+class SuperTextNormalizer(Transformer):
+    """
+    Apply our whole back of tricks to normalize text.
+    """
+
+    def __init__(self):
+        self.gco = GraphemeClusterOrderer(before='NFKD', after='NFC')
+        self.eu = ExtraUnicodeNormalizer()
+        self.wh = WhitespaceNormalizer()
+
+    def transform(self, ss):
+        ss = self.gco.transform(ss)
+        ss = self.eu.transform(ss)
+        ss = self.wh.transform(ss)
+        return ss
