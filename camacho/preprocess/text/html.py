@@ -1,8 +1,8 @@
-from camacho.base import TransformerMixin
+from camacho.base import Transformer
 from HTMLParser import HTMLParser
 
 
-class HTMLEntityDecoder(TransformerMixin):
+class HTMLEntityDecoder(Transformer):
     """
     Decode the HTML entities in text.
     """

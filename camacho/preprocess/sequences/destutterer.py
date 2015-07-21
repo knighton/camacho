@@ -1,7 +1,7 @@
-from camacho.base import TransformerMixin
+from camacho.base import Transformer
 
 
-class SequenceDestutterer(TransformerMixin):
+class SequenceDestutterer(Transformer):
     """
     Drop overly-repeated items.
     """

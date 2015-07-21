@@ -1,8 +1,8 @@
-from camacho.base import TransformerMixin
+from camacho.base import Transformer
 import unicodedata
 
 
-class UnicodeNormalizer(TransformerMixin):
+class UnicodeNormalizer(Transformer):
     """
     Apply one of the Unicode normalization forms.
     """
@@ -39,7 +39,7 @@ def aggressively_normalize_upcs(text):
     return ''.join(ss)
 
 
-class GraphemeClusterOrderer(TransformerMixin):
+class GraphemeClusterOrderer(Transformer):
     """
     Normalize a bit further than the standard Unicode normalization forms.
 

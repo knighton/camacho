@@ -1,4 +1,4 @@
-from camacho.base import ReversibleTransformerMixin
+from camacho.base import Transformer
 from gensim.models.word2vec import Word2Vec as InternalWord2Vec
 import numpy as np
 from numpy.linalg import norm
@@ -8,7 +8,7 @@ def cosine_similarity(a, b):
     return np.dot(a, b) / (norm(a) * norm(b))
 
 
-class Word2Vec(ReversibleTransformerMixin):
+class Word2Vec(Transformer):
     """
     Tokens <-> arrays of float.
     """

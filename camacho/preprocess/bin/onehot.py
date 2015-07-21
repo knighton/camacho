@@ -1,4 +1,4 @@
-from camacho.base import ReversibleTransformerMixin
+from camacho.base import Transformer
 from camacho.util import to_one_hot, ones_and_zeros, from_one_hot
 
 
@@ -10,7 +10,7 @@ def dict_from_list(aa):
     return a2n, n2a
 
 
-class AtomBinarizer(ReversibleTransformerMixin):
+class AtomBinarizer(Transformer):
     """
     Atoms <-> one-hot arrays.
 
@@ -45,7 +45,7 @@ def mapping_from_lists(aaa):
     return mapping_from_list(rr)
 
 
-class SetBinarizer(ReversibleTransformerMixin):
+class SetBinarizer(Transformer):
     """
     Lists of unique tokens <-> Binary-encoded sets.
 
@@ -79,7 +79,7 @@ class SetBinarizer(ReversibleTransformerMixin):
         return aaa
 
 
-class OneHot1D(ReversibleTransformerMixin):
+class OneHot1D(Transformer):
     """
     Token lists <-> concatenated one-hot arrays per token.
 
@@ -115,7 +115,7 @@ class OneHot1D(ReversibleTransformerMixin):
         return aaa
 
 
-class OneHot2D(ReversibleTransformerMixin):
+class OneHot2D(Transformer):
     """
     Token lists <-> 2-dimensional one-hot arrays.
 

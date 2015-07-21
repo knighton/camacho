@@ -1,7 +1,7 @@
-from camacho.base import TransformerMixin
+from camacho.base import Transformer
 
 
-class LowerCase(TransformerMixin):
+class LowerCase(Transformer):
     """
     Convert to lower case.
     """

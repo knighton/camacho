@@ -1,8 +1,8 @@
-from camacho.base import TransformerMixin
+from camacho.base import Transformer
 from nltk import word_tokenize
 
 
-class WhitespaceTokenizer(TransformerMixin):
+class WhitespaceTokenizer(Transformer):
     """
     Tokenize text on whitespace.
     
@@ -13,7 +13,7 @@ class WhitespaceTokenizer(TransformerMixin):
         return map(lambda s: s.split(), texts)
 
 
-class NLTKTokenizer(TransformerMixin):
+class NLTKTokenizer(Transformer):
     """
     Wraps NLTK's word_tokenize().
     """

@@ -1,6 +1,42 @@
-class TransformerMixin(object):
+class Transformer(object):
     """
-    Used to preprocess data.
+    Used to preprocess/postprocess data.
+
+    Classifier example:
+
+        [data, labels]
+            |--transform()
+            v
+        [binary data, labels for training]
+
+            then
+
+        [data]
+            |--transform()
+            v
+        [binary data for evaluation]
+            |--classify()
+            v
+        [binary labels]
+            |--inverse_transform()
+            v
+        [labels]
+
+    Autoencoder example:
+
+        [data]
+            |--transform()
+            v
+        [binary data]
+            |--encode()
+            v
+        [smaller binary data]
+            |--decode()
+            v
+        [recreated binary data]
+            |--inverse_transform()
+            v
+        [data]
     """
 
     def fit(self, aa):
@@ -21,12 +57,6 @@ class TransformerMixin(object):
         items -> transformed items
         """
         raise NotImplementedError
-
-
-class ReversibleTransformerMixin(TransformerMixin):
-    """
-    Used to encode/decode labels.
-    """
 
     def inverse_transform(self, aa):
         """

@@ -1,8 +1,8 @@
-from camacho.base import ReversibleTransformerMixin
+from camacho.base import Transformer
 from collections import defaultdict
 
 
-class IntCoder(ReversibleTransformerMixin):
+class IntCoder(Transformer):
     """
     Converts tokens <-> contiguous range of ints.
     """

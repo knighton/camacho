@@ -1,4 +1,4 @@
-from camacho.base import TransformerMixin
+from camacho.base import Transformer
 
 
 class TruncateHandler(object):
@@ -66,7 +66,7 @@ for klass in TRUNCATE_HANDLERS:
     ACTION2HANDLER[klass.__class__.__name__] = klass
 
 
-class MaxLengthEnforcer(TransformerMixin):
+class MaxLength(Transformer):
     def __init__(self, max_len=512, action='TruncateMidBack',
                  divider_token='\0'):
         self._max_len = max_len

@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 
-from camacho.base import TransformerMixin
+from camacho.base import Transformer
 from camacho.preprocess.tokenize import CharacterTokenizer
 from camacho.preprocess.sequences import SequenceDestutterer
 import sys
 import unicodedata
 
 
-class WhitespaceNormalizer(TransformerMixin):
+class WhitespaceNormalizer(Transformer):
     """
     Replace all whitespace with ' '.
     """
@@ -16,7 +16,7 @@ class WhitespaceNormalizer(TransformerMixin):
         return map(lambda s: u' '.join(s.split()), texts)
 
 
-class EllipsisNormalizer(TransformerMixin):
+class EllipsisNormalizer(Transformer):
     """
     Normalize various strings of dots to a dot or an ellipsis.
     """
@@ -51,7 +51,7 @@ class EllipsisNormalizer(TransformerMixin):
         return map(self._transform_text, texts)
 
 
-class TextDestutterer(TransformerMixin):
+class TextDestutterer(Transformer):
     """
     Drop overly-repeated non-digit characters.
     """
@@ -71,7 +71,7 @@ class TextDestutterer(TransformerMixin):
         return map(lambda cc: ''.join(cc), ccc)
 
 
-class CharacterReplacer(TransformerMixin):
+class CharacterReplacer(Transformer):
     """
     Replace characters (single code units) with strings.
     """
@@ -240,7 +240,7 @@ EXTRA_TRANSLATE_MAP = sum_dicts(
     DEFAULT_TRANSLATE_MAP, HIGH_SURROGATE_MAP, BLACKLETTER_MAP)
 
 
-class ExtraNFK(TransformerMixin):
+class ExtraNFK(Transformer):
     """
     Apply further Unicode compatibility mappings than the NFK* forms.
     """

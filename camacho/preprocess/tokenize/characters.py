@@ -1,8 +1,8 @@
-from camacho.base import TransformerMixin
+from camacho.base import Transformer
 import unicodedata
 
 
-class CodeUnitTokenizer(TransformerMixin):
+class CodeUnitTokenizer(Transformer):
     """
     Tokenize text on code units (which are often user-perceived characters).
 
@@ -36,7 +36,7 @@ def segments_from_text(text):
     return map(lambda r: ''.join(r), rr)
 
 
-class CharacterTokenizer(TransformerMixin):
+class CharacterTokenizer(Transformer):
     """
     Tokenize text on user-perceived character boundaries.
     

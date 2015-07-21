@@ -1,7 +1,7 @@
-from camacho.base import TransformerMixin
+from camacho.base import Transformer
 
 
-class TransformerPipeline(TransformerMixin):
+class TransformerPipeline(Transformer):
     def __init__(self, steps):
         self._steps = steps
 
@@ -22,8 +22,6 @@ class TransformerPipeline(TransformerMixin):
             aa = step.transform(aa)
         return aa
 
-
-class ReversibleTransformerPipeline(TransformerPipeline):
     def inverse_transform(self, aa):
         for step in reversed(self._steps):
             aa = step.inverse_transform(aa)

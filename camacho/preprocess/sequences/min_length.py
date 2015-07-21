@@ -1,4 +1,4 @@
-from camacho.base import TransformerMixin
+from camacho.base import Transformer
 
 
 class ExtendHandler(object):
@@ -40,7 +40,7 @@ for klass in EXTEND_HANDLERS:
     ACTION2HANDLER[klass.__class__.__name__] = klass
 
 
-class MinLengthEnforcer(TransformerMixin):
+class MinLength(Transformer):
     def __init__(self, min_len=0, action='PadBack', pad_token='\0'):
         self._min_len = min_len
         self._action = action
