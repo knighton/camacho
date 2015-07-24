@@ -63,7 +63,7 @@ TRUNCATE_HANDLERS = [
 
 ACTION2HANDLER = {}
 for klass in TRUNCATE_HANDLERS:
-    ACTION2HANDLER[klass.__class__.__name__] = klass
+    ACTION2HANDLER[klass.__name__] = klass
 
 
 class MaxLength(Transformer):

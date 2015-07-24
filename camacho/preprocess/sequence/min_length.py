@@ -16,7 +16,7 @@ class PadFront(ExtendHandler):
 
     def extend(self, aa):
         n = self._min_len - len(aa)
-        return [self._pad_token] * n + aa
+        return ''.join([self._pad_token] * n) + aa
 
 
 class PadBack(ExtendHandler):
@@ -26,7 +26,7 @@ class PadBack(ExtendHandler):
 
     def extend(self, aa):
         n = self._min_len - len(aa)
-        return aa + [self._pad_token] * n
+        return aa + ''.join([self._pad_token] * n)
 
 
 EXTEND_HANDLERS = [
@@ -37,7 +37,7 @@ EXTEND_HANDLERS = [
 
 ACTION2HANDLER = {}
 for klass in EXTEND_HANDLERS:
-    ACTION2HANDLER[klass.__class__.__name__] = klass
+    ACTION2HANDLER[klass.__name__] = klass
 
 
 class MinLength(Transformer):
@@ -45,7 +45,7 @@ class MinLength(Transformer):
         self._min_len = min_len
         self._action = action
         self._pad_token = pad_token
-        self._extender = ACTION2HANDLER[action](min_len, divider_token)
+        self._extender = ACTION2HANDLER[action](min_len, pad_token)
 
     def transform(self, aaa):
         rrr = []
