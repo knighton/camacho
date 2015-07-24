@@ -1,5 +1,6 @@
 from camacho.base import Transformer
 from camacho.util import to_one_hot, ones_and_zeros, from_one_hot
+import numpy as np
 
 
 def dict_from_list(aa):
@@ -23,11 +24,13 @@ class AtomBinarizer(Transformer):
 
     def transform(self, aa):
         nn = map(lambda a: self._a2n[a], aa)
-        return map(lambda n: to_one_hot(n, len(self._a2n)), nn)
+        bbb = map(lambda n: to_one_hot(n, len(self._a2n)), nn)
+        return np.array(bbb)
 
     def inverse_transform(self, nnn):
         nn = map(from_one_hot, nnn)
-        return map(lambda n: self._n2a[n], nn)
+        aa = map(lambda n: self._n2a[n], nn)
+        return np.array(aa)
 
 
 def mapping_from_list(aa):
@@ -142,3 +145,23 @@ class OneHot2D(Transformer):
             aa = map(lambda n: self._n2a[n], nn)
             aaa.append(aa)
         return aaa
+
+
+class OneHot(Transformer):
+    def fit(self, nn):
+        self._nb_classes = np.max(nn) + 1
+
+    def transform(self, nn):
+        nn = np.asarray(nn, dtype='int32')
+        bbb = np.zeros((len(nn), self._nb_classes))
+        for i, n in enumerate(nn):
+            assert 0 <= i < self._nb_classes
+            bbb[i, n] = 1.
+        return bbb
+
+    def inverse_transform(self, bbb):
+        nn = []
+        for bb in bbb:
+            n = np.argmax(bb, axis=1)
+            nn.append(n)
+        return np.asarray(nn, dtype='int32')

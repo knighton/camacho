@@ -20,7 +20,7 @@ class Word2Vec(Transformer):
 
     def fit(self, aaa):
         aaa = list(aaa)  # Gensim performs worse on generators.
-        self._model = InternalWord2Vec(sentences=aaa, size=self._num_dims)
+        self._model = InternalWord2Vec(sentences=aaa, size=self._num_dims, workers=10)
         self._model.init_sims(replace=True)  # To save memory.
         self._index2token = {}
         for token, entry in self._model.vocab.iteritems():
@@ -37,7 +37,7 @@ class Word2Vec(Transformer):
                     ff = [1.0] * self._num_dims
                 fff.append(ff)
             ffff.append(fff)
-        return ffff
+        return np.array(ffff)
 
     def _decode(self, ff):
         sims_xx = []
@@ -57,4 +57,4 @@ class Word2Vec(Transformer):
                 a = self._decode(ff)
                 aa.append(a)
             aaa.append(aa)
-        return aaa
+        return np.array(aaa)
