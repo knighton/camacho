@@ -31,7 +31,10 @@ class Word2Vec(Transformer):
         for aa in aaa:
             fff = []
             for a in aa:
-                ff = self._model[a]
+                if a in self._model:
+                    ff = self._model[a]
+                else:
+                    ff = [1.0] * self._num_dims
                 fff.append(ff)
             ffff.append(fff)
         return ffff
