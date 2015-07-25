@@ -1,5 +1,6 @@
 from camacho.base import Transformer
 from collections import defaultdict
+import numpy as np
 
 
 class IntCoder(Transformer):
@@ -90,11 +91,11 @@ class IntCoder(Transformer):
             for aa in aaa:
                 nn = map(lambda a: self._a2n[a], aa)
                 nnn.append(nn)
-        return nnn
+        return np.array(nnn)
 
     def inverse_transform(self, nnn):
         aaa = []
         for nn in nnn:
             aa = map(lambda n: self._n2a[n], nn)
             aaa.append(aa)
-        return aaa
+        return np.array(aaa)
