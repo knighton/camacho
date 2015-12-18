@@ -81,5 +81,5 @@ class MaxLength(Transformer):
                 rr = aa
             else:
                 rr = self._truncator.truncate(aa)
-            rrr.append(aa)
+            rrr.append(rr)
         return rrr

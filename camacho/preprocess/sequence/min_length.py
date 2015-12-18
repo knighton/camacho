@@ -16,7 +16,7 @@ class PadFront(ExtendHandler):
 
     def extend(self, aa):
         n = self._min_len - len(aa)
-        return ''.join([self._pad_token] * n) + aa
+        return [self._pad_token] * n + aa
 
 
 class PadBack(ExtendHandler):
@@ -26,7 +26,7 @@ class PadBack(ExtendHandler):
 
     def extend(self, aa):
         n = self._min_len - len(aa)
-        return aa + ''.join([self._pad_token] * n)
+        return aa + [self._pad_token] * n
 
 
 EXTEND_HANDLERS = [
